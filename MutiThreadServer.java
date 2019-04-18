@@ -131,9 +131,9 @@ public class MutiThreadServer {
 
     public static void main(String[] args) throws Exception {
         ServerSocket serverSocket = new ServerSocket(6666);
-        ExecutorService executorService = Executors.newFixedThreadPool(1);
+        ExecutorService executorService = Executors.newFixedThreadPool(50);
         System.out.println("等待用户连接");
-        for (int i = 0;i < 1;i++) {//源码中默认连接
+        for (int i = 0;i < 50;i++) {//源码中默认连接
             Socket client = serverSocket.accept();
             System.out.println("有新用户连接!端口号为:"+client.getPort());
             ExecuteClientRequest executeClientRequest = new ExecuteClientRequest(client);
