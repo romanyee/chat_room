@@ -17,6 +17,13 @@ import java.util.regex.Pattern;
 public class MutiThreadServer {
     //使用
     private static Map<String,Socket> clientsMap = new ConcurrentHashMap<>();
+    //为什么要用ConcurrentHashMap?
+    //首先是线程安全问题，肯定不能用HashMap.
+    //相比Hashtable,虽然线程安全了,但是Hashtable本身的效率比较低，
+    //要实现Hashtable就要给它的各种方法（如put/get/size）加上synchronized
+    //这会导致所有并发线程竞争同一把锁，一个线程在进行同步操作时，其他线程只能等待
+    //降低并发操作效率。
+
     private static class ExecuteClientRequest implements Runnable{
         private Socket client;
 
@@ -111,17 +118,22 @@ public class MutiThreadServer {
         }
 
         private void userExit(String userName) {
+            for (String name : clientsMap.keySet()) {
+                if (clientsMap.get(name).equals(client)) {
+                    userName = name;
+                }
+            }
             clientsMap.remove(userName);
             System.out.println("用户："+userName+"下线了");
-            System.out.println("当前聊天室人数为："+clientsMap.size());
+            System.out.println("当前聊天室人数为："+(clientsMap.size()));
         }
     }
 
     public static void main(String[] args) throws Exception {
         ServerSocket serverSocket = new ServerSocket(6666);
-        ExecutorService executorService = Executors.newFixedThreadPool(20);
+        ExecutorService executorService = Executors.newFixedThreadPool(1);
         System.out.println("等待用户连接");
-        for (int i = 0;i < 20;i++) {
+        for (int i = 0;i < 1;i++) {//源码中默认连接
             Socket client = serverSocket.accept();
             System.out.println("有新用户连接!端口号为:"+client.getPort());
             ExecuteClientRequest executeClientRequest = new ExecuteClientRequest(client);
