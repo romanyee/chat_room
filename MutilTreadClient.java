@@ -4,12 +4,13 @@ package com.bittech;
 import java.io.IOException;
 import java.io.PrintStream;
 import java.net.Socket;
-import java.util.HashMap;
-import java.util.Hashtable;
-import java.util.Scanner;
+import java.util.*;
 
+
+//从服务器读消息
 class ReadFromServer implements Runnable{
     private Socket client;
+
     //通过构造方法传入通信的Socket
     public ReadFromServer(Socket client) {
         this.client = client;
@@ -21,11 +22,13 @@ class ReadFromServer implements Runnable{
         try {
             readFromServer = new Scanner(client.getInputStream());
             readFromServer.useDelimiter("\n");
+
             //不断读取服务器信息
             while (true) {
                 if (readFromServer.hasNext()) {
                     String str = readFromServer.next();
-                    System.out.println("服务器发来："+str);
+                    System.out.println(str);
+                    System.out.println();
                 }
                 if (client.isClosed()) {
                     System.out.println("客户端已关闭！");
@@ -54,18 +57,16 @@ class SendMsgToServer implements Runnable{
         PrintStream sendMsgToServer = null;
         try {
             sendMsgToServer = new PrintStream(client.getOutputStream(), true, "UTF-8");
-            System.out.println("输入要发送的信息：");
+            System.out.println("输入要发送的信息：（注册->userName:zhangsan  群聊->G:zhangsan-Hello i am ...  私聊->P:sender:receiver:hello i am ...  退出->zhangsan:byebye）");
             while (true) {
-
                 if (in.hasNextLine()) {
                     String strToServer = in.nextLine();
                     sendMsgToServer.println(strToServer);
                     if (strToServer.contains("byebye")) {
-                        System.out.println("关闭！");
+                        System.out.println("正在退出聊天室……");
                         break;
                     }
                 }
-
             }
         } catch (IOException e) {
             e.printStackTrace();
